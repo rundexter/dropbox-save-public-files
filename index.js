@@ -1,13 +1,56 @@
+var _ = require('lodash')
+    , dropbox = require('dropbox')
+    , http = require('http')
+    , PATH = require('path')
+    , URL = require('url')
+    , q = require('q')
+;
 module.exports = {
-    /**
-     * The main entry point for the Dexter module
-     *
-     * @param {AppStep} step Accessor for the configuration for the step using this module.  Use step.input('{key}') to retrieve input data.
-     * @param {AppData} dexter Container for all data used in this workflow.
-     */
     run: function(step, dexter) {
-        var results = { foo: 'bar' };
-        //Call this.complete with the module's output.  If there's an error, call this.fail(message) instead.
-        this.complete(results);
+        var path = step.input('path').first()
+            , urls = step.input('urls').toArray()
+            , errors = []
+            , self = this
+        ;
+        q.allSettled(_.map(urls, function(url) {
+            var deferred = q.defer()
+                , parsed = URL.parse(url)
+                , name = PATH.basename(parsed.path)
+                , finalPath = PATH.join(path, name)
+                , request = http.get(url, function(resp) {
+                    if(resp.statusCode < 400) {
+                        deferred.resolve(self.files.put('dropbox', finalPath, resp))
+                    } else {
+                        deferred.reject(new Error('Invalid response for ' + url + ': ' + resp.statusCode));
+                    }
+                })
+            ;
+            request.on('error', function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise; 
+        }))
+            .then(function(results) {
+                var errors = [], successes = [];
+                _.each(results, function(result) {
+                    if(result.state == 'fulfilled') {
+                        successes.push({ file: result.value });
+                    } else {
+                        if(result.reason instanceof Error) {
+                            errors.push(result.reason.message);
+                        } else {
+                            errors.push(result.reason);
+                        }
+                    }
+                });
+                if(errors.length > 0) {
+                    self.log('Failed uploading ' + errors.length + ' file(s)', {
+                        errors: errors
+                    });
+                }
+                self.complete(successes);
+            })
+            .fail(self.fail)
+        ;
     }
 };

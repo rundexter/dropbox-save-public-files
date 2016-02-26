@@ -1,26 +1,22 @@
-/*
- * Metadata describing the module operation
- */
 {
-    //Required. Inputs the module expects.
     "inputs": [
-        //e.g.
-        /*
         {
-            "id": "from",
-            "title":"From"
+            "id": "path",
+            "title":"Path",
+            "description": "Where to put uploaded files"
+        }, {
+            "id": "urls",
+            "title": "URLs",
+            "description": "Files to copy"
         }
-        */
     ],
-    //Required. Outputs the module emits.
     "outputs": [
-      //e.g.
-      /*
         {
-            "id": "from",
-            "title":"From"
+            "id": "file",
+            "title":"File"
         }
-      */
     ],
-    "title": "Dropbox: Save Public Files" /* Required.A display name for the module */
+    "providers": "dropbox",
+    "icon": "dropbox",
+    "title": "Dropbox: Save Public Files"
 }

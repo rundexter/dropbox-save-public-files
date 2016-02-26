@@ -1,12 +1,14 @@
 {
-    "name": "dropbox-save-public-files",
-    "version": "0.0.1",
-    "description": "",
-    "main": "index.js",
-    "author": "Justin Fargione",
-    "license": "ISC",
-    "private": true,
-    "dependencies": {
-        "lodash": "^3.9.3"
-    }
+  "name": "dropbox-save-public-files",
+  "version": "0.0.1",
+  "description": "Save a list of HTTP-exposed files to a Dropbox folder",
+  "main": "index.js",
+  "author": "Justin Fargione",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "dropbox": "^0.10.3",
+    "lodash": "^3.9.3",
+    "q": "^1.4.1"
+  }
 }
